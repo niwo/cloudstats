@@ -1,28 +1,35 @@
 # CloudstackStats
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/cloudstack_stats`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+CloudstackStats pulls project and account statistics from the CloudStack API and feeds them into a influxdb.
+Whit the help of Grafana this let's you craft beautiful usage dashboards.
 
 ## Installation
 
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'cloudstack_stats'
-```
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
+Install the gem as:
 
     $ gem install cloudstack_stats
 
 ## Usage
 
-TODO: Write usage instructions here
+Make sure you have a working [cloudstack-cli](https://github.com/niwo/cloudstack-cli) configuration file in your home directory.
+Usually this is found under `~/.cloudstack-cli.yml`
+
+Install gem dependencies:
+
+    $ bundle install
+
+See the help for more options:
+
+    $ bin/cloudstack_stats help
+
+## Getting started
+
+# TODO
+
+  - filter
+  - influxdb
+  - dotenv
+  - testing
 
 ## Development
 
@@ -32,10 +39,9 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/cloudstack_stats.
+Bug reports and pull requests are welcome on GitHub at https://github.com/niwo/cloudstack_stats.
 
 
 ## License
 
 The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
-
