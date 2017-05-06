@@ -2,20 +2,71 @@ require "cloudstack_client"
 require "yaml"
 
 module CloudstackStats
-  class CloudstackHelper
 
-    attr_reader :cs
+  CS_TAGS = %w(domain)
+
+  CS_STATS = %w(
+    vmrunning vmstopped
+    memorytotal cputotal iptotal
+    primarystoragetotal
+    secondarystoragetotal
+    snapshottotal networktotal
+    volumetotal sentbytes
+  )
+
+  class Collect
 
     def initialize(settings)
-      @settings = settings
+      @settings = settings.dup
       @config ||= load_configuration
       @cs ||= CloudstackClient::Client.new(
         @config[:url],
         @config[:api_key],
         @config[:secret_key]
       )
-      @cs.debug = true if settings[:debug]
+      @cs.debug = true if @settings[:debug]
       @cs
+    end
+
+    def account_stats
+      lines(@cs.list_accounts(client_options), "account")
+    end
+
+    def project_stats
+      lines(@cs.list_projects(client_options), "project")
+    end
+
+    private
+
+    # builds influxdb lines protocol arrays
+    def lines(objects, type)
+      objects.map do |obj|
+        fields = CS_STATS.map {|name| "#{name}=#{obj[name]}" }
+        tags = CS_TAGS.map {|name| "#{name}=#{obj[name]}" }
+        [
+          obj["name"] +
+          "," + tags.join(",") +
+          ",type=#{type}" +
+          " " + fields.join(",")
+        ]
+      end
+    end
+
+    def client_options
+      { listall: true, isrecursive: true }.merge(
+       resolve_domain(@settings)
+      )
+    end
+
+    def resolve_domain(opts)
+      if opts[:domain]
+        if domain = @cs.list_domains(name: opts[:domain]).first
+          opts[:domainid] = domain['id']
+        else
+          raise "Domain #{opts[:domain]} not found."
+        end
+      end
+      opts
     end
 
     def load_configuration

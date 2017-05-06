@@ -1,7 +1,5 @@
-require "influxdb"
-
 module CloudstackStats
-  class Influxdb
+  class Feed
 
     def initialize(options = {})
       load_configuration(options)
@@ -69,7 +67,7 @@ module CloudstackStats
       file_settings["host"] ||= "localhost"
       file_settings["port"] ||= 8086
       file_settings["use_ssl"] ||= false
-      file_settings["database"] ||= "cdnmanager"
+      file_settings["database"] ||= "cloudstack-stats"
       file_settings["time_precision"] ||= "s"
       file_settings
     end

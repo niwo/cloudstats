@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = %q{Collect CloudStack stats and feed them to influxdb.}
   spec.description   = %q{Collect project and account statistics from the CloudStack API and feeds them into a influxdb.}
-  spec.homepage      = "https://github.com/niwo/cloudtsack_stats"
+  spec.homepage      = "https://github.com/niwo/cloudstack_stats"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0").reject do |f|
@@ -27,5 +27,4 @@ Gem::Specification.new do |spec|
 
   spec.add_runtime_dependency "thor", "~> 0.19"
   spec.add_runtime_dependency "cloudstack_client", "~> 1.4.3"
-  spec.add_runtime_dependency "influxdb", "~> 0.3.9"
 end

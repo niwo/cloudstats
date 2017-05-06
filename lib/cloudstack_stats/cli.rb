@@ -1,7 +1,7 @@
 require "thor"
 require "cloudstack_stats/version"
-require "cloudstack_stats/cloudstack_helper"
-require "cloudstack_stats/influxdb"
+require "cloudstack_stats/collect"
+require "cloudstack_stats/feed"
 
 module CloudstackStats
   class Cli < Thor
@@ -43,61 +43,25 @@ module CloudstackStats
     map %w(-v --version) => :version
 
     desc "projects", "Pull projects stats from CloudStack."
-    option :exclude,
-      desc: "Projects to exclude (regex).",
-      type: :array
+    option :domain,
+      desc: "Name of Domain (for recursive search)",
+      default: "ROOT"
     def projects
-      cs = CloudstackHelper.new(options).cs
-
-      stats = %w(vmrunning volumetotal vmstopped memorytotal cputotal iptotal primarystoragetotal secondarystoragetotal snapshottotal volumetotal)
-
-      table = [%w(project) + stats]
-      cs.list_projects(listall: true).each do |project|
-        values = [project["name"]]
-        stats.each do |name|
-          values << project[name]
-        end
-        table << values
-      end
-      print_table(table)
-
+      print_table Collect.new(options).project_stats
     rescue => e
       say "ERROR: ", :red
       puts e.message
     end
 
     desc "accounts", "Pull account stats from CloudStack."
-    option :exclude,
-      desc: "Accounts to exclude (regex).",
-      type: :array
+    option :domain,
+      desc: "Name of Domain (for recursive search)",
+      default: "ROOT"
     def accounts
-      cs = CloudstackHelper.new(options).cs
-      stats = %w(vmrunning volumetotal vmstopped memorytotal cputotal iptotal primarystoragetotal secondarystoragetotal snapshottotal volumetotal)
-
-      table = [%w(account) + stats]
-      cs.list_accounts(listall: true).each do |account|
-        values = [account["name"]]
-        stats.each do |name|
-          values << account[name]
-        end
-        table << values
-      end
-      print_table(table)
-
+      print_table Collect.new(options).account_stats
     rescue => e
       say "ERROR: ", :red
       puts e.message
-    end
-
-    no_commands do
-      def filter_objects(objects, key, value)
-        objects.select do |object|
-          object[key.to_s].to_s =~ /#{value}/i
-        end
-      rescue RegexpError => e
-        say "ERROR: Invalid regular expression in limit option- #{e.message}", :red
-        exit 1
-      end
     end
 
   end # class
