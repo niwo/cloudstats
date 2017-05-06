@@ -26,7 +26,6 @@ See the help for more options:
 
 # TODO
 
-  - filter
   - influxdb
   - dotenv
   - testing
