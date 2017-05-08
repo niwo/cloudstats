@@ -22,13 +22,6 @@ See the help for more options:
 
     $ bin/cloudstack_stats help
 
-## Getting started
-
-# TODO
-
-  - influxdb
-  - dotenv
-  - testing
 
 ## Development
 
