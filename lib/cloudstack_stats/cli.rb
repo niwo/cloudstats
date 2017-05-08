@@ -18,6 +18,16 @@ module CloudstackStats
       aliases: '-E',
       desc: 'cloudstack-cli environment to use'
 
+    class_option :connection_string,
+      default: "http://localhost:8086/",
+      aliases: '-I',
+      desc: 'Influxdb connection string'
+
+    class_option :database,
+      default: "cloudstack-stats",
+      aliases: '-D',
+      desc: 'Influxdb database'
+
     class_option :debug,
       aliases: '-D',
       desc: 'Enable debug output',
@@ -47,7 +57,15 @@ module CloudstackStats
       desc: "Name of Domain (for recursive search)",
       default: "ROOT"
     def projects
-      print_table Collect.new(options).project_stats
+      say "Collect stats...", :yellow
+      stats = Collect.new(options).project_stats
+      say "Write stats to influxdb...", :yellow
+      Feed.new(options).write(stats) do |stat, res|
+        print_in_columns [
+          stat['name'],
+          res.code == '204' ? 'OK' : 'FAIL'
+        ]
+      end
     rescue => e
       say "ERROR: ", :red
       puts e.message
@@ -58,7 +76,15 @@ module CloudstackStats
       desc: "Name of Domain (for recursive search)",
       default: "ROOT"
     def accounts
-      print_table Collect.new(options).account_stats
+      say "Collect stats...", :yellow
+      stats = Collect.new(options).account_stats
+      say "Write stats to influxdb...", :yellow
+      Feed.new(options).write(stats) do |stat, res|
+        print_in_columns [
+          stat['name'],
+          res.code == '204' ? 'OK' : 'FAIL'
+        ]
+      end
     rescue => e
       say "ERROR: ", :red
       puts e.message

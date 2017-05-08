@@ -1,75 +1,56 @@
 module CloudstackStats
+  CS_TAGS = %w(domain)
+
+  CS_STATS = %w(
+    vmrunning vmstopped
+    memorytotal cputotal iptotal
+    primarystoragetotal
+    secondarystoragetotal
+    snapshottotal networktotal
+    volumetotal sentbytes
+  )
+
   class Feed
+    require "net/http"
+    require "uri"
 
-    def initialize(options = {})
-      load_configuration(options)
+    def initialize(opts = {})
+      @database = opts[:database]
+      @connection_string = opts[:connection_string] ||
+        "http://localhost:8086/"
     end
 
-    def client(db = @database, opts = {})
-      @client ||= InfluxDB::Client.new db, {
-        host: @host,
-        port: @port,
-        username: @username,
-        password: @password,
-        use_ssl: @use_ssl,
-        time_precision: @time_precision
-      }.merge(opts)
-    end
+    def write(stats)
+      uri = URI.parse("#{@connection_string}write?db=#{@database}")
+      http = Net::HTTP.new(uri.host, uri.port)
 
-    def setup
-      begin
-        client = self.client(nil, retry: 0)
-        client.ping
-        unless client.list_databases.any? {|db| db['name'] == @database}
-          logger.warn "No database with name #{@database} found. Creating it."
-          client.create_database(@database)
-          self.setup
-        end
-        if @username && !client.list_users.any?{|u| u["username"] == @username}
-          logger.warn "No user with name #{@username} found. Creating it."
-          client.create_database_user(@database, @username, @password)
-          self.setup
-          exit 0
-        end
-      rescue InfluxDB::ConnectionError => e
-        puts e.inspect
-        logger.fatal "Can't connect to influxdb. Please check if influxdb service is running."
-        exit 1
-      rescue => e
-        puts e.inspect
-        logger.fatal "Unhandled error: #{e.message}"
-        exit 1
+      if @connection_string =~ /^https::.*/
+        http.use_ssl = true
+        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
       end
-      logger.info "Influxdb setup passed."
-    end
 
-    def load_configuration(options)
-      @configuration_file = options[:configuration_file] || File.expand_path(
-        "../../../config/influxdb.yml", __FILE__
-      )
-      file_settings = load_configuration_file(@configuration_file)
-      @username = options[:username] || file_settings["username"]
-      @password = options[:password] || file_settings["password"]
-      @host = options[:host] || file_settings["host"]
-      @port = options[:port] || file_settings["port"]
-      @use_ssl = options[:use_ssl] || file_settings["use_ssl"]
-      @database = options[:database] || file_settings["database"]
-      @time_precision = options[:time_precision] || file_settings["time_precision"]
-    end
+      request = Net::HTTP::Post.new(uri.request_uri)
+      request.content_type = "application/octet-stream"
 
-    def load_configuration_file(file_path)
-      begin
-        file_settings = YAML.load ERB.new(File.read(file_path)).result
-      rescue => e
-        logger.fatal "Error while loading influxdb configuration file: #{e.message}"
-        exit 1
+      type = stats[:type]
+      stats[:stats].map do |stat|
+        request.body = stat_to_line(stat, type)
+        response = http.request(request)
+        yield(stat, response) if block_given?
       end
-      file_settings["host"] ||= "localhost"
-      file_settings["port"] ||= 8086
-      file_settings["use_ssl"] ||= false
-      file_settings["database"] ||= "cloudstack-stats"
-      file_settings["time_precision"] ||= "s"
-      file_settings
+      nil
+    end
+
+    private
+
+    # builds influxdb line protocol strings
+    def stat_to_line(obj, type)
+      fields = CloudstackStats::CS_STATS.map {|name| "#{name}=#{obj[name] || 0}i" }
+      tags = CloudstackStats::CS_TAGS.map {|name| "#{name}=#{obj[name]}" }
+      obj["name"] +
+        "," + tags.join(",") +
+        ",type=#{type}" +
+        " " + fields.join(",")
     end
 
   end # class
