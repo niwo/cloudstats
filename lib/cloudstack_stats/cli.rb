@@ -18,10 +18,19 @@ module CloudstackStats
       aliases: '-E',
       desc: 'cloudstack-cli environment to use'
 
-    class_option :connection_string,
+    class_option :influx_url,
       default: "http://localhost:8086/",
-      aliases: '-I',
-      desc: 'Influxdb connection string'
+      aliases: '-U',
+      desc: 'Influxdb URL'
+
+    class_option :influx_user,
+      default: "cloudstack-stats",
+      aliases: '-u',
+      desc: 'Influxdb user'
+
+    class_option :influx_password,
+      aliases: '-p',
+      desc: 'Influxdb password'
 
     class_option :database,
       default: "cloudstack-stats",
@@ -60,12 +69,7 @@ module CloudstackStats
       say "Collect stats...", :yellow
       stats = Collect.new(options).project_stats
       say "Write stats to influxdb...", :yellow
-      Feed.new(options).write(stats) do |stat, res|
-        print_in_columns [
-          stat['name'],
-          res.code == '204' ? 'OK' : 'FAIL'
-        ]
-      end
+      Feed.new(options).write(stats) {|stat, res| print_status(stat, res)}
     rescue => e
       say "ERROR: ", :red
       puts e.message
@@ -79,15 +83,21 @@ module CloudstackStats
       say "Collect stats...", :yellow
       stats = Collect.new(options).account_stats
       say "Write stats to influxdb...", :yellow
-      Feed.new(options).write(stats) do |stat, res|
-        print_in_columns [
-          stat['name'],
-          res.code == '204' ? 'OK' : 'FAIL'
-        ]
-      end
+      Feed.new(options).write(stats) {|stat, res| print_status(stat, res)}
     rescue => e
       say "ERROR: ", :red
       puts e.message
+    end
+
+    no_commands do
+      def print_status(stat, res)
+        print_in_columns [
+          stat['name'],
+          res.code == '204' ?
+            "OK (HTTP #{res.code})" :
+            "FAIL (HTTP #{res.code})"
+        ]
+      end
     end
 
   end # class

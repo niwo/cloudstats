@@ -16,29 +16,39 @@ module CloudstackStats
 
     def initialize(opts = {})
       @database = opts[:database]
-      @connection_string = opts[:connection_string] ||
+      @url = opts[:influx_url] ||
         "http://localhost:8086/"
+      @user = opts[:influx_user]
+      @password = opts[:influx_password]
+      @debug = opts[:debug]
     end
 
     def write(stats)
-      uri = URI.parse("#{@connection_string}write?db=#{@database}")
+      uri = URI.parse(
+        URI.join(
+          @url,
+          "write?db=#{@database}&precision=m"
+        ).to_s
+      )
       http = Net::HTTP.new(uri.host, uri.port)
 
-      if @connection_string =~ /^https::.*/
+      if uri.scheme == "https"
         http.use_ssl = true
         http.verify_mode = OpenSSL::SSL::VERIFY_NONE
       end
 
       request = Net::HTTP::Post.new(uri.request_uri)
       request.content_type = "application/octet-stream"
+      request.basic_auth(@user, @password) if @user && @password
+
 
       type = stats[:type]
       stats[:stats].map do |stat|
-        request.body = stat_to_line(stat, type)
+        request.body = line = stat_to_line(stat, type)
+        puts line if @debug
         response = http.request(request)
         yield(stat, response) if block_given?
       end
-      nil
     end
 
     private
@@ -47,7 +57,7 @@ module CloudstackStats
     def stat_to_line(obj, type)
       fields = CloudstackStats::CS_STATS.map {|name| "#{name}=#{obj[name] || 0}i" }
       tags = CloudstackStats::CS_TAGS.map {|name| "#{name}=#{obj[name]}" }
-      obj["name"] +
+      obj["name"].downcase.tr(" ", "-").tr("--", "-").gsub(/[^0-9A-Za-z-_]/, '') +
         "," + tags.join(",") +
         ",type=#{type}" +
         " " + fields.join(",")
