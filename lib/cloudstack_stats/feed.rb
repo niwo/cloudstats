@@ -58,7 +58,7 @@ module CloudstackStats
       fields = CloudstackStats::CS_STATS.map {|name| "#{name}=#{obj[name] || 0}i" }
       tags = CloudstackStats::CS_TAGS.map {|name| "#{name}=#{obj[name]}" }
       "#{type}." +
-      obj["name"].downcase.tr(" ", "-").tr("--", "-").gsub(/[^0-9A-Za-z-_]/, '') +
+      obj["name"].downcase.tr(" ", "-").tr("--", "-").gsub(/[^0-9A-Za-z\-\_]/, '') +
         ",type=#{type}" +
         "," + tags.join(",") +
         " " + fields.join(",")
