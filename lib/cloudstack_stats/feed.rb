@@ -21,7 +21,7 @@ module CloudstackStats
       @user = opts[:influx_user]
       @password = opts[:influx_password]
       @debug = opts[:debug]
-      @total = {type: "total", stats: [{"name" => "_total_"}]}
+      @total = {type: "total", stats: [{}]}
     end
 
     def write(stats, total = true)
@@ -52,6 +52,7 @@ module CloudstackStats
         yield(stat, response) if block_given?
       end
       if total
+        @total[:stats][0]['name'] = type
         write(@total, total = false) {|stat, response| yield(stat, response)}
       end
     end
