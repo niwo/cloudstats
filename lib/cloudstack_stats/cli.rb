@@ -10,7 +10,7 @@ module CloudstackStats
     package_name "cloudstack_stats"
 
     class_option :cloudstack_url,
-      default: "http://localhost:8080/client/",
+      default: "http://localhost:8080/client/api",
       aliases: '-A',
       desc: 'CloudStack API URL'
 
