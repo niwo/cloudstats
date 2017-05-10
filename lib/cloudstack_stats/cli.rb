@@ -9,7 +9,20 @@ module CloudstackStats
 
     package_name "cloudstack_stats"
 
-    class_option :config_file,
+    class_option :cloudstack_url,
+      default: "http://localhost:8080/client",
+      aliases: '-A',
+      desc: 'CloudStack API URL'
+
+    class_option :cloudstack_api_key,
+      aliases: '-k',
+      desc: 'CloudStack API Key'
+
+    class_option :cloudstack_api_secret,
+      aliases: '-s',
+      desc: 'CloudStack API Secret'
+
+    class_option :cloudstack_config,
       default: File.join(Dir.home, '.cloudstack-cli.yml'),
       aliases: '-C',
       desc: 'Location of your cloudstack-cli configuration file'
@@ -84,9 +97,9 @@ module CloudstackStats
       stats = Collect.new(options).account_stats
       say "Write stats to influxdb...", :yellow
       Feed.new(options).write(stats) {|stat, res| print_status(stat, res)}
-    rescue => e
-      say "ERROR: ", :red
-      puts e.message
+    # rescue => e
+    #   say "ERROR: ", :red
+    #   puts e.message
     end
 
     no_commands do

@@ -7,7 +7,18 @@ module CloudstackStats
 
     def initialize(settings)
       @settings = settings.dup
-      @config ||= CloudstackClient::Configuration.load(@settings)
+      @config = if @settings[:cloudstack_url] &&
+        @settings[:cloudstack_api_key] &&
+        @settings[:cloudstack_secret_key]
+        {
+          url: @settings[:cloudstack_url],
+          api_key: @settings[:cloudstack_api_key],
+          secret_key: @settings[:cloudstack_secret_key]
+        }
+      else
+        @settings[:config_file] = @settings[:cloudstack_config]
+        CloudstackClient::Configuration.load(@settings)
+      end
       @cs ||= CloudstackClient::Client.new(
         @config[:url],
         @config[:api_key],
