@@ -21,9 +21,10 @@ module CloudstackStats
       @user = opts[:influx_user]
       @password = opts[:influx_password]
       @debug = opts[:debug]
+      @total = {type: "total", stats: [{"name" => "_total_"}]}
     end
 
-    def write(stats)
+    def write(stats, total = true)
       uri = URI.parse(
         URI.join(
           @url,
@@ -43,11 +44,15 @@ module CloudstackStats
 
 
       type = stats[:type]
-      stats[:stats].map do |stat|
+      stats[:stats].each do |stat|
+        add_to_total(stat) if total
         request.body = line = stat_to_line(stat, type)
         puts line if @debug
         response = http.request(request)
         yield(stat, response) if block_given?
+      end
+      if total
+        write(@total, total = false) {|stat, response| yield(stat, response)}
       end
     end
 
@@ -55,13 +60,27 @@ module CloudstackStats
 
     # builds influxdb line protocol strings
     def stat_to_line(obj, type)
-      fields = CloudstackStats::CS_STATS.map {|name| "#{name}=#{obj[name] || 0}i" }
-      tags = CloudstackStats::CS_TAGS.map {|name| "#{name}=#{obj[name]}" }
-      "#{type}." +
-      obj["name"].downcase.tr(" ", "-").tr("--", "-").gsub(/[^0-9A-Za-z\-\_]/, '') +
-        ",type=#{type}" +
-        "," + tags.join(",") +
-        " " + fields.join(",")
+      fields = CloudstackStats::CS_STATS.map {|name| "#{name}=#{obj[name].to_i}i" }
+      unless type == "total"
+        tags = CloudstackStats::CS_TAGS.map {|name| "#{name}=#{obj[name]}" }
+      end
+      line = "#{type}.#{normalize_name(obj["name"])},type=#{type}"
+      line += "," + tags.join(",") if tags
+      line +=  " " + fields.join(",")
+    end
+
+    def add_to_total(obj)
+      CloudstackStats::CS_STATS.each do |stat|
+        if @total[:stats][0].key? stat
+          @total[:stats][0][stat] += obj[stat].to_i
+        else
+          @total[:stats][0][stat] = obj[stat].to_i
+        end
+      end
+    end
+
+    def normalize_name(name)
+      name.downcase.tr(" ", "-").tr("--", "-").gsub(/[^0-9A-Za-z\-\_]/, '')
     end
 
   end # class
