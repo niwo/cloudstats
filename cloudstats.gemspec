@@ -9,8 +9,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ["niwo"]
   spec.email         = ["nik.wolfgramm@gmail.com"]
 
-  spec.summary       = %q{Collect CloudStack stats and feed them to influxdb.}
-  spec.description   = %q{Collect project and account statistics from the CloudStack API and feeds them into a influxdb.}
+  spec.summary       = %q{Collect CloudStack stats and feed them to InfluxdDB.}
+  spec.description   = %q{Collect project and account statistics from the CloudStack API and feeds them into InfluxDB.}
   spec.homepage      = "https://github.com/niwo/cloudstats"
   spec.license       = "MIT"
 
