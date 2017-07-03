@@ -23,7 +23,7 @@ module Cloudstats
       desc: 'CloudStack API Secret'
 
     class_option :cloudstack_config,
-      default: CloudstackClient::Configuration.detect_config_file,
+      default: CloudstackClient::Configuration.locate_config_file,
       aliases: '-C',
       desc: 'Location of your cloudstack-cli configuration file'
 
