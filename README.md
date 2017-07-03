@@ -1,18 +1,18 @@
-# CloudstackStats
+# Cloudstats
 
-CloudstackStats pulls project and account statistics from the CloudStack API and feeds them into a influxdb.
+Cloudstats pulls project and account statistics from the CloudStack API and feeds them into a Influxdb database.
 Whit the help of Grafana this let's you craft beautiful usage dashboards.
 
 ## Installation
 
 Install the gem as:
 
-    $ gem install cloudstack_stats
+    $ gem install cloudstats
 
 ## Usage
 
-Make sure you have a working [cloudstack-cli](https://github.com/niwo/cloudstack-cli) configuration file in your home directory.
-Usually this is found under `~/.cloudstack-cli.yml`
+Make sure you have a working [cloudstack_client](https://github.com/niwo/cloudstack_client) configuration file in your home directory.
+Usually this is found under `~/.cloudstack.yml`
 
 Install gem dependencies:
 
@@ -20,7 +20,7 @@ Install gem dependencies:
 
 See the help for more options:
 
-    $ bin/cloudstack_stats help
+    $ bin/cloudstats help
 
 
 ## Development
@@ -31,8 +31,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/niwo/cloudstack_stats.
-
+Bug reports and pull requests are welcome on GitHub at https://github.com/niwo/cloudstats.
 
 ## License
 

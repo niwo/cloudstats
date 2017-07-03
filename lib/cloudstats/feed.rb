@@ -1,4 +1,4 @@
-module CloudstackStats
+module Cloudstats
   CS_TAGS = %w(domain)
 
   CS_STATS = %w(
@@ -61,9 +61,9 @@ module CloudstackStats
 
     # builds influxdb line protocol strings
     def stat_to_line(obj, type)
-      fields = CloudstackStats::CS_STATS.map {|name| "#{name}=#{obj[name].to_i}i" }
+      fields = Cloudstats::CS_STATS.map {|name| "#{name}=#{obj[name].to_i}i" }
       unless type == "total"
-        tags = CloudstackStats::CS_TAGS.map {|name| "#{name}=#{obj[name]}" }
+        tags = Cloudstats::CS_TAGS.map {|name| "#{name}=#{obj[name]}" }
       end
       line = "#{type}.#{normalize_name(obj["name"])},type=#{type}"
       line += "," + tags.join(",") if tags
@@ -71,7 +71,7 @@ module CloudstackStats
     end
 
     def add_to_total(obj)
-      CloudstackStats::CS_STATS.each do |stat|
+      Cloudstats::CS_STATS.each do |stat|
         if @total[:stats][0].key? stat
           @total[:stats][0][stat] += obj[stat].to_i
         else

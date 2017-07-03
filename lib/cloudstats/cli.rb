@@ -1,13 +1,13 @@
 require "thor"
-require "cloudstack_stats/version"
-require "cloudstack_stats/collect"
-require "cloudstack_stats/feed"
+require "cloudstats/version"
+require "cloudstats/collect"
+require "cloudstats/feed"
 
-module CloudstackStats
+module Cloudstats
   class Cli < Thor
     include Thor::Actions
 
-    package_name "cloudstack_stats"
+    package_name "cloudstats"
 
     class_option :cloudstack_url,
       default: "http://localhost:8080/client/api",
@@ -23,7 +23,7 @@ module CloudstackStats
       desc: 'CloudStack API Secret'
 
     class_option :cloudstack_config,
-      default: File.join(Dir.home, '.cloudstack-cli.yml'),
+      default: CloudstackClient::Configuration.detect_config_file,
       aliases: '-C',
       desc: 'Location of your cloudstack-cli configuration file'
 
@@ -70,7 +70,7 @@ module CloudstackStats
 
     desc "version", "Print version number"
     def version
-      say "cloudstack_stats v#{CloudstackStats::VERSION}"
+      say "cloudstats v#{Cloudstats::VERSION}"
     end
     map %w(-v --version) => :version
 

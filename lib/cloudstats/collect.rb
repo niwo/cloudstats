@@ -2,7 +2,7 @@ require "cloudstack_client"
 require "cloudstack_client/configuration"
 require "yaml"
 
-module CloudstackStats
+module Cloudstats
   class Collect
 
     def initialize(settings)
