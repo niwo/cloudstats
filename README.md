@@ -26,7 +26,7 @@ See the help for more options:
 
 ## Grafana dashboard
 
-You'll find a example (Grafana)[https://grafana.com/] dashboard export in the examples folder.
+You'll find a example [Grafana](https://grafana.com/) dashboard export in the examples folder.
 
 ## Development
 
