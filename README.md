@@ -24,6 +24,9 @@ See the help for more options:
 
     $ bin/cloudstats help
 
+## Grafana dashboard
+
+You'll find a example (Grafana)[https://grafana.com/] dashboard export in the examples folder.
 
 ## Development
 
