@@ -3,6 +3,8 @@
 Cloudstats pulls project and account statistics from the CloudStack API and feeds them into a Influxdb database.
 Whit the help of Grafana this let's you craft beautiful usage dashboards.
 
+![Grafana Dashboard](dashboard.png)
+
 ## Installation
 
 Install the gem as:
