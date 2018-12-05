@@ -20,10 +20,10 @@ Gem::Specification.new do |spec|
   spec.executables   = %w(cloudstats)
   spec.require_paths = ["lib"]
 
-  spec.add_development_dependency "bundler", "~> 1.13"
-  spec.add_development_dependency "rake", "~> 12.0"
+  spec.add_development_dependency "bundler", "~> 1.17"
+  spec.add_development_dependency "rake", "~> 12.3"
   spec.add_development_dependency "minitest", "~> 5.0"
 
-  spec.add_runtime_dependency "thor", "~> 0.19"
+  spec.add_runtime_dependency "thor", "~> 0.20"
   spec.add_runtime_dependency "cloudstack_client", "~> 1.5"
 end
