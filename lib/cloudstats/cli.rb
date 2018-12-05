@@ -97,9 +97,9 @@ module Cloudstats
       stats = Collect.new(options).account_stats
       say "Write stats to influxdb...", :yellow
       Feed.new(options).write(stats) {|stat, res| print_status(stat, res)}
-    # rescue => e
-    #   say "ERROR: ", :red
-    #   puts e.message
+    rescue => e
+      say "ERROR: ", :red
+      puts e.message
     end
 
     no_commands do

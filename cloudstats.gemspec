@@ -25,5 +25,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "minitest", "~> 5.0"
 
   spec.add_runtime_dependency "thor", "~> 0.19"
-  spec.add_runtime_dependency "cloudstack_client", "~> 1.5.3"
+  spec.add_runtime_dependency "cloudstack_client", "~> 1.5"
 end
